@@ -14,6 +14,15 @@ class Agent:
         # 每个智能体创建一个多智能体深度确定性策略梯度对象，以便后续使用该策略来选择动作和学习
         self.policy = MADDPG(args, agent_id)
 
+        # 新的观测量（不全）
+        self.R_s = 0.0  # 起止干度 R_(0:t/∆t)^s
+        self.R_b = 0.0  # 起止干度 R_(0:t/∆t)^b
+        self.T_s = 0.0  # 起止温度 T_(0:t/∆t)^s
+        self.T_b = 0.0  # 起止温度 T_(0:t/∆t)^b
+        self.heat_absorbed = 0.0  # 吸取的热量
+        self.task_done = False  # 任务完成状态
+
+
     # 根据当前观察（环境状态）o、噪声率noise_rate和随机因素epsilon从策略中选择一个动作
     # 动作的范围在-self.args.high_action到self.args.high_action之间
     # 维度是self.args.action_shape[self.agent_id]

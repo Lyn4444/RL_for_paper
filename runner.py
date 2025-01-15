@@ -26,6 +26,9 @@ class Runner:
         self.save_path = self.args.save_dir + '/' + self.args.scenario_name
         if not os.path.exists(self.save_path):
             os.makedirs(self.save_path)
+            
+        # 从环境中获取 Scenario 对象
+        self.scenario = env.scenario
 
     # 初始化所有智能体添加到列表
     def _init_agents(self):
@@ -61,6 +64,9 @@ class Runner:
             # 将当前状态、动作、奖励和下一状态存储到缓冲区 buffer 中
             self.buffer.store_episode(s[:self.args.n_agents], u, r[:self.args.n_agents], s_next[:self.args.n_agents])
             s = s_next
+            # 更新每个智能体的任务完成状态
+            for agent in self.agents:
+                self.scenario.is_task_done(agent, self.env.world)
             # 如果缓冲区中存储的经验数量大于或等于batch_size采样
             if self.buffer.current_size >= self.args.batch_size:
                 transitions = self.buffer.sample(self.args.batch_size)
@@ -84,7 +90,7 @@ class Runner:
             np.save(self.save_path + '/returns.pkl', returns)
 
     # 负责智能体在环境中的评估过
-    # def evaluate(self):
+    def evaluate(self):
         # returns 用于存储每个评估回合的总奖励
         returns = []
         # 每个评估回合 episode 进行循环
